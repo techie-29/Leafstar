@@ -19,10 +19,20 @@ const bin = (name) => join(root, "node_modules", ".bin", name);
 const port = Number(process.env.PW_PORT ?? 3100);
 const site = `http://127.0.0.1:${port}`;
 
+/** On GitHub, a failure before the tests start also becomes an annotation on the check. */
+function report(error) {
+  if (process.env.GITHUB_ACTIONS) console.log(`::error title=e2e setup::${String(error?.stack ?? error).replace(/\n/g, "%0A")}`);
+}
+
 let stack = null;
 if (process.env.DATABASE_URL) {
   console.log("[e2e] starting local Supabase (Auth + PostgREST) on a fresh database…");
-  stack = await startLocalSupabase({ siteUrl: site });
+  try {
+    stack = await startLocalSupabase({ siteUrl: site });
+  } catch (error) {
+    report(error);
+    throw error;
+  }
 } else {
   console.log("[e2e] DATABASE_URL not set: database tests will be skipped.");
 }
