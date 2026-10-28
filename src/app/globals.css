@@ -62,6 +62,7 @@
   --spacing-close: 48px;
   --spacing-button-min: 96px;
   --spacing-sheet: 90dvh;
+  --spacing-qr: 176px;
 
   /* max widths */
   --container-page: 1280px;
@@ -92,6 +93,7 @@
   --animate-fade-in: ls-fade-in 200ms cubic-bezier(0.2, 0, 0, 1);
   --animate-sheet-in: ls-sheet-in 200ms cubic-bezier(0.2, 0, 0, 1);
   --animate-drawer-in: ls-drawer-in 200ms cubic-bezier(0.2, 0, 0, 1);
+  --animate-nav-in: ls-nav-in 200ms cubic-bezier(0.2, 0, 0, 1);
   --animate-shimmer: ls-shimmer 1.4s linear infinite;
 }
 
@@ -359,6 +361,10 @@
 }
 @keyframes ls-drawer-in {
   from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+@keyframes ls-nav-in {
+  from { transform: translateX(-100%); }
   to { transform: translateX(0); }
 }
 @keyframes ls-spin {

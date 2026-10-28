@@ -6,7 +6,7 @@ a public website for buyers and an owner admin for stock, bills, enquiries and C
 - **Rules:** [`AGENTS.md`](AGENTS.md) (data, security, behaviour, process)
 - **Design:** [`DESIGN.md`](DESIGN.md) (colours, type, spacing, components, every screen)
 - **Plan:** [`BUILD_PLAN.md`](BUILD_PLAN.md) (steps 0–14, each with the owner's checklist)
-- **Database:** [`supabase/schema.sql`](supabase/schema.sql) then [`supabase/003_hardening.sql`](supabase/003_hardening.sql), run once each in the Supabase SQL Editor
+- **Database:** [`supabase/schema.sql`](supabase/schema.sql) then [`supabase/003_hardening.sql`](supabase/003_hardening.sql), then [`supabase/004_step2.sql`](supabase/004_step2.sql), run once each in the Supabase SQL Editor
 
 ## Run it on a computer
 
@@ -26,8 +26,11 @@ npm run typecheck
 npm run check:design      # no raw colours, no off-scale sizes
 npm test                  # unit tests; database tests too when DATABASE_URL is set
 npm run build
-npm run test:e2e          # screenshots at 375/768/1024/1440 in both themes + accessibility scan
+npm run test:e2e          # real login/Settings flows against a local Supabase, screenshots at 375/768/1024/1440 in both themes, accessibility scan
 ```
+
+`test:e2e` downloads the official Supabase Auth server and PostgREST once into `.cache/` and runs them on a
+throwaway database (see `scripts/local-supabase.mjs`); it needs the same `DATABASE_URL`.
 
 Database tests build a throwaway database from `schema.sql` and every migration, so they need a Postgres
 server you may create databases on: `DATABASE_URL=postgresql://user:pass@localhost:5432/postgres npm test`.

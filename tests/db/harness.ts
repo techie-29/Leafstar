@@ -29,7 +29,7 @@ export interface TestDb {
   admin: pg.Client;
   /** Run SQL as a given API role, exactly like Supabase does for real requests. */
   as: <T extends pg.QueryResultRow = pg.QueryResultRow>(
-    who: "anon" | "owner" | "stranger" | "service_role",
+    who: "anon" | "owner" | "owner-aal2" | "stranger" | "service_role",
     sql: string,
     params?: unknown[],
   ) => Promise<pg.QueryResult<T>>;
@@ -71,12 +71,15 @@ export async function createTestDb(): Promise<TestDb> {
   await admin.query(`select bootstrap_owner('owner@example.com', 'Owner')`);
 
   const as: TestDb["as"] = async (who, sql, params) => {
-    const role = who === "owner" || who === "stranger" ? "authenticated" : who;
-    const uid = who === "owner" ? OWNER_ID : who === "stranger" ? STRANGER_ID : "";
+    // "owner-aal2" = the owner after passing two-step login (Supabase sets aal=aal2 in the token).
+    const isOwner = who === "owner" || who === "owner-aal2";
+    const role = isOwner || who === "stranger" ? "authenticated" : who;
+    const uid = isOwner ? OWNER_ID : who === "stranger" ? STRANGER_ID : "";
+    const claims = JSON.stringify({ aal: who === "owner-aal2" ? "aal2" : "aal1" });
     await admin.query("begin");
     try {
       await admin.query(`set local role ${role}`);
-      await admin.query(`select set_config('request.uid', $1, true)`, [uid]);
+      await admin.query(`select set_config('request.uid', $1, true), set_config('request.jwt.claims', $2, true)`, [uid, claims]);
       const result = await admin.query(sql, params);
       await admin.query("commit");
       return result;

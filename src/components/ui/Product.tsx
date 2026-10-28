@@ -2,6 +2,7 @@
 
 import { Check } from "lucide-react";
 import { cx } from "@/lib/cx";
+import { formatNumber } from "@/lib/numbers";
 
 /* Swatch, SizeChip, StockBar, Stepper (DESIGN.md §5). */
 
@@ -92,7 +93,7 @@ export function stockLevel(pieces: number, lowThreshold: number): StockLevel {
 const levelFill: Record<StockLevel, string> = { out: "bg-danger", low: "bg-warning", ok: "bg-success" };
 const levelText: Record<StockLevel, string> = { out: "text-danger", low: "text-warning", ok: "text-fg" };
 
-const pieces = new Intl.NumberFormat("en-IN");
+const pieces = { format: formatNumber };
 
 /** Stock bar is always paired with the number (never colour alone). */
 export function StockBar({ value, max, lowThreshold, className }: { value: number; max: number; lowThreshold: number; className?: string }) {

@@ -43,9 +43,14 @@ jobs:
         run: npm test
       - name: Build
         run: npm run build
+      - name: Cache local Supabase binaries (Auth server, PostgREST)
+        uses: actions/cache@v4
+        with:
+          path: .cache/local-supabase
+          key: local-supabase-${{ hashFiles('scripts/local-supabase.mjs') }}
       - name: Install browser
         run: npx playwright install --with-deps chromium
-      - name: Browser tests (screenshots, accessibility, theme)
+      - name: Browser tests (real login against local Supabase, screenshots, accessibility, theme)
         run: npm run test:e2e
       - name: Keep screenshots for review
         if: always()

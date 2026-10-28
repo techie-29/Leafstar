@@ -47,3 +47,6 @@ next-env.d.ts
 /screenshots/
 /test-results/
 /playwright-report/
+
+# local test binaries (Supabase Auth, PostgREST)
+/.cache/

@@ -1,7 +1,7 @@
 "use client";
 
-import { useId, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes, type TextareaHTMLAttributes } from "react";
-import { AlertCircle, ChevronDown } from "lucide-react";
+import { useId, useState, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes, type TextareaHTMLAttributes } from "react";
+import { AlertCircle, ChevronDown, Eye, EyeOff } from "lucide-react";
 import { cx } from "@/lib/cx";
 
 /* Every form control shares: label above (14/600), helper below (14 muted), error in danger with an icon
@@ -86,6 +86,48 @@ export function TextInput({ label, helper, error, hideLabel, prefix, className, 
           className={cx(controlBase, "h-control", borderFor(error), prefix && (prefix.length > 1 ? "pl-12" : "pl-8"))}
           {...rest}
         />
+      </div>
+    </FieldShell>
+  );
+}
+
+export interface PasswordInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "className" | "size" | "type"> {
+  label: string;
+  helper?: ReactNode;
+  error?: string;
+  className?: string;
+}
+
+/** Password field with a show/hide button (44px target) so people can check what they typed on a phone. */
+export function PasswordInput({ label, helper, error, className, id: idProp, required, ...rest }: PasswordInputProps) {
+  const autoId = useId();
+  const id = idProp ?? autoId;
+  const [visible, setVisible] = useState(false);
+  return (
+    <FieldShell id={id} label={label} required={required} helper={helper} error={error} className={className}>
+      <div className="relative flex items-center">
+        <input
+          id={id}
+          type={visible ? "text" : "password"}
+          required={required}
+          aria-required={required || undefined}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={describedBy(id, error, helper)}
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
+          className={cx(controlBase, "h-control pr-12", borderFor(error))}
+          {...rest}
+        />
+        <button
+          type="button"
+          onClick={() => setVisible((v) => !v)}
+          aria-label={visible ? "Hide password" : "Show password"}
+          aria-pressed={visible}
+          className="absolute right-0 inline-flex size-control items-center justify-center rounded-md text-fg-muted transition-colors duration-150 hover:text-fg focus-ring"
+        >
+          {visible ? <EyeOff aria-hidden="true" className="size-icon" /> : <Eye aria-hidden="true" className="size-icon" />}
+        </button>
       </div>
     </FieldShell>
   );

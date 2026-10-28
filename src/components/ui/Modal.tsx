@@ -20,7 +20,7 @@ interface DialogBaseProps {
   footer?: ReactNode;
 }
 
-function useNativeDialog(open: boolean, onClose: () => void) {
+export function useNativeDialog(open: boolean, onClose: () => void) {
   const ref = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {

@@ -14,9 +14,9 @@ Claude's workspace cannot reach the real Supabase, Gemini, or the owner's phone.
 
 ## Step 0 — Setup (owner)
 1. Install Node.js LTS and Git (only needed if you want to run things yourself; Claude does the building).
-2. Supabase: run `supabase/schema.sql` (done), then run `supabase/003_hardening.sql` in the SQL Editor. Choose "Run and enable RLS" if asked. Both must finish with no error.
+2. Supabase: run `supabase/schema.sql` (done), then `supabase/003_hardening.sql` (done), then `supabase/004_step2.sql` (with Step 2) in the SQL Editor. Choose "Run and enable RLS" if asked. Each must finish with no error.
 3. Supabase → Authentication: sign-ups OFF; password minimum length 12; leaked-password protection if your plan offers it. The owner user exists and `bootstrap_owner` has been run (check: `select * from profiles;` shows one row, role `owner`). Turn on two-step login (TOTP) for your account once Step 2 is live.
-4. Create a **separate second Supabase project** named "leafstar-test" (free is fine). Run the same two files in it. It never holds real data; the GitHub Pages preview's catalog/image-lab pages read from this project, never the real one.
+4. Create a **separate second Supabase project** named "leafstar-test" (free is fine). Run the same files in it, in the same order. It never holds real data; the GitHub Pages preview's catalog/image-lab pages read from this project, never the real one.
 5. **Public** GitHub repository `leafstar` (public so GitHub Pages is free), with GitHub Pages turned on in its settings, building from GitHub Actions. Claude is given access when asked. Because the repo is public, no key or secret is ever committed. Only the **test** project's URL and anon key go into the repo's GitHub Actions secrets (Settings → Secrets and variables → Actions) as `PREVIEW_SUPABASE_URL` and `PREVIEW_SUPABASE_ANON_KEY`, for building the preview; both are safe to expose (see `AGENTS.md` §2 and §7). Settings → Pages → Source must be set to **GitHub Actions**.
 6. For later: when Step 13 arrives, create a Vercel project connected to this same repo for the real, server-backed site. Nothing to do here yet.
 7. Your own `.env.local` (for anything you run yourself) holds the real project's URL, anon key and service-role key, plus `GEMINI_API_KEY`, `GEMINI_MODEL`, `NEXT_PUBLIC_SITE_URL`, `CRON_SECRET`. Never paste these in chat, and never into the repo.
@@ -48,7 +48,8 @@ Owner reviews the preview and `DESIGN.md`, asks for changes, approves. Transpare
 ## Step 2 — Admin login, shell and Settings
 **Ask first:** business details and brand list.
 **Claude builds:** login with password reset, route protection, logout, the admin shell, Settings (business details, Brands with show-on-website switch, FAQ/policies list, alert email, AI budget and pause switch showing today's usage).
-**Your check:** `/admin` while logged out redirects; log in/out; reset-password email arrives; save real details and refresh; sidebar is a drawer on your phone; turn on two-step login.
+**Before checking (owner):** run `supabase/004_step2.sql` in the SQL Editor of both projects. Optional but recommended, so reset links work on any device: Supabase → Authentication → Emails → "Reset password" template, set the link to `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&next=/admin/update-password`. Without it, open the reset email on the same phone or computer that asked for it.
+**Your check:** login and Settings need a server, so they are NOT on the GitHub Pages preview; review Claude's screenshots and test report now, and try them for real at Step 13. In the report: `/admin` while logged out redirects to login; wrong password refused, 10 wrong tries block for 15 minutes; reset link sets a new password; Settings saves are checked and never overwrite a change made elsewhere; brands hide/show; FAQ answers; AI limit and pause; two-step login on and off.
 
 ## Step 3 — Image system and viewer
 **Claude builds:** direct-to-storage upload with signed URLs, server processing (HEIC conversion, rotation, thumb/medium/large WebP, blur placeholder, EXIF stripped), `ProcessedImage`, the shared `ImageViewer` (library chosen and justified), and `/dev/image-lab`.
@@ -65,7 +66,7 @@ Owner reviews the preview and `DESIGN.md`, asks for changes, approves. Transpare
 
 ## Step 6 — Public website
 **Ask first:** hero and About photos/videos; real trust numbers; your story and how a deal closes; should Home/About content be editable from the admin?
-**Claude builds:** navbar, footer, Home, About, Catalog, article page, enquiry list, Request Price, call sheet, Contact, Privacy, 404, and **migration 004** (a single database function that creates a lead + items + activity + inbox item together and handles repeat enquiries from the same phone). All writes go through rate-limited, origin-checked server routes.
+**Claude builds:** navbar, footer, Home, About, Catalog, article page, enquiry list, Request Price, call sheet, Contact, Privacy, 404, and **migration 005** (a single database function that creates a lead + items + activity + inbox item together and handles repeat enquiries from the same phone). All writes go through rate-limited, origin-checked server routes.
 **Your check:** go through the site as a buyer on your phone; colour dots switch photos instantly; out-of-stock articles/colours/sizes and hidden brands appear nowhere; no price anywhere (also in View Source); enquiry list with three articles sends one request; a second request from the same phone joins the open lead; Call sheet and callback form work; WhatsApp link opens a pre-filled chat; both themes on every page.
 
 ## Step 7 — Bulk bill scanning

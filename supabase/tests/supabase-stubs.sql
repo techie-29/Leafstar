@@ -17,8 +17,18 @@ create table if not exists storage.buckets (id text primary key, name text, publ
 create table if not exists storage.objects (id uuid default gen_random_uuid(), bucket_id text, name text);
 alter table storage.objects enable row level security;
 
+-- Session claims (Supabase sets these from the login token). Tests set 'aal' to model two-step login.
+create or replace function auth.jwt() returns jsonb language sql stable as $$
+  select coalesce(nullif(current_setting('request.jwt.claims', true), ''), '{}')::jsonb
+$$;
+create table if not exists auth.mfa_factors (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null,
+  status text not null default 'unverified'
+);
+
 grant usage on schema public, auth, storage to anon, authenticated, service_role;
-grant execute on function auth.uid() to anon, authenticated, service_role;
+grant execute on function auth.uid(), auth.jwt() to anon, authenticated, service_role;
 
 -- Supabase's own default: new tables in public are granted to the API roles.
 -- 003_hardening.sql must close this for anon; the tests prove it does.

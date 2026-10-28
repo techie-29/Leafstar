@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { AlertTriangle, Info, XCircle, type LucideIcon } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Info, XCircle, type LucideIcon } from "lucide-react";
 import { cx } from "@/lib/cx";
 import { Button } from "./Button";
 
@@ -61,4 +61,20 @@ const skeletonRadius = { sm: "rounded-sm", md: "rounded-md", lg: "rounded-lg", x
 
 export function Skeleton({ className, rounded = "md" }: { className?: string; rounded?: keyof typeof skeletonRadius }) {
   return <div aria-hidden="true" className={cx("skeleton", skeletonRadius[rounded], className)} />;
+}
+
+/** The result line of a form (above its buttons): what happened and, on error, what to do. */
+export function FormMessage({ tone, children, className }: { tone: "success" | "error" | "info"; children: ReactNode; className?: string }) {
+  const style = {
+    success: { box: "bg-success-bg text-success", icon: CheckCircle2 },
+    error: { box: "bg-danger-bg text-danger", icon: XCircle },
+    info: { box: "bg-surface-2 text-fg", icon: Info },
+  }[tone];
+  const Icon = style.icon;
+  return (
+    <div role={tone === "error" ? "alert" : "status"} className={cx("flex items-start gap-3 rounded-md px-4 py-3", style.box, className)}>
+      <Icon aria-hidden="true" className="mt-1 size-icon-sm shrink-0" />
+      <p className="type-small font-semibold">{children}</p>
+    </div>
+  );
 }

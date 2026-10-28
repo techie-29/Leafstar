@@ -10,7 +10,7 @@
     "typecheck": "next typegen && tsc --noEmit",
     "check:design": "node scripts/check-design.mjs",
     "test": "vitest run",
-    "test:e2e": "playwright test",
+    "test:e2e": "node scripts/e2e.mjs",
     "build:preview": "node scripts/build-preview.mjs",
     "db:types": "supabase gen types typescript --project-id \"$SUPABASE_PROJECT_ID\" --schema public > src/types/database.ts",
     "verify": "npm run lint && npm run typecheck && npm run check:design && npm test && npm run build"

@@ -9,8 +9,10 @@ import { publicEnv } from "@/lib/env";
  * Row Level Security still applies, exactly as in the browser.
  */
 export async function supabaseServer() {
-  const env = publicEnv();
+  // Cookies first: this marks the page as per-visitor before anything else runs, so a build without
+  // Supabase settings (GitHub's check) never tries to prerender it.
   const cookieStore = await cookies();
+  const env = publicEnv();
   return createServerClient<Database>(env.NEXT_PUBLIC_SUPABASE_URL, env.NEXT_PUBLIC_SUPABASE_ANON_KEY, {
     cookies: {
       getAll() {

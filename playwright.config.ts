@@ -9,6 +9,7 @@ const port = Number(process.env.PW_PORT ?? 3100);
 const rawBase = process.env.PW_BASE_URL ?? `http://127.0.0.1:${port}`;
 const baseURL = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
 const executablePath = process.env.PW_CHROMIUM_PATH || undefined;
+const browser = { ...devices["Desktop Chrome"], launchOptions: executablePath ? { executablePath } : undefined };
 
 export default defineConfig({
   testDir: "./tests/e2e",
@@ -22,7 +23,14 @@ export default defineConfig({
     trace: "retain-on-failure",
     launchOptions: executablePath ? { executablePath } : undefined,
   },
-  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"], launchOptions: executablePath ? { executablePath } : undefined } }],
+  projects: [
+    // Public pages and shared components: run in parallel.
+    { name: "chromium", testIgnore: /admin-.*\.spec\.ts/, use: { ...browser } },
+    // Login, Settings and two-step login change the one test account, so they run in order, alone.
+    { name: "admin-flows", testMatch: /admin-flows\.spec\.ts/, fullyParallel: false, use: { ...browser } },
+    // Screenshots of admin pages, after the flows have put the account back to normal.
+    { name: "admin-visual", testMatch: /admin-visual\.spec\.ts/, dependencies: ["admin-flows"], use: { ...browser } },
+  ],
   webServer: process.env.PW_BASE_URL
     ? undefined
     : {

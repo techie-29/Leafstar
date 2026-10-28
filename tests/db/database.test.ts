@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { createTestDb, databaseUrl, refused, type TestDb } from "./harness";
+import { createTestDb, databaseUrl, OWNER_ID, refused, type TestDb } from "./harness";
 
 /*
   The database's own guarantees (AGENTS.md §6, §7, §11, §15), proven on every push.
@@ -251,6 +251,45 @@ describe.skipIf(!databaseUrl())("database rules", () => {
       await db.admin.query(`delete from article_colors where id = $1`, [c.rows[0].id]);
       expect((await db.admin.query(`select count(*)::int as n from article_images where color_id = $1`, [c.rows[0].id])).rows[0].n).toBe(0);
       await refused(() => db.admin.query(`delete from article_colors where code = 'NVY'`));
+    });
+  });
+
+  describe("two-step login (004_step2.sql)", () => {
+    const ownerReads = async (who: "owner" | "owner-aal2") =>
+      (await db.as(who, `select count(*)::int as n from business_settings`)).rows[0].n as number;
+
+    it("lets the owner in with a password while two-step login is off", async () => {
+      expect(await ownerReads("owner")).toBe(1);
+    });
+
+    it("once switched on, a password alone opens no data; passing the second step does", async () => {
+      const f = await db.admin.query<{ id: string }>(
+        `insert into auth.mfa_factors (user_id, status) values ($1, 'verified') returning id`, [OWNER_ID]);
+      try {
+        expect(await ownerReads("owner")).toBe(0);
+        await refused(() => db.as("owner", `update business_settings set city = 'X'`).then((r) => {
+          if (r.rowCount === 0) throw new Error("no rows updated");
+        }));
+        expect(await ownerReads("owner-aal2")).toBe(1);
+      } finally {
+        await db.admin.query(`delete from auth.mfa_factors where id = $1`, [f.rows[0].id]);
+      }
+    });
+
+    it("treats brand names that differ only in capitals as the same brand", async () => {
+      await db.admin.query(`insert into brands (name) values ('Case Test')`);
+      await refused(() => db.admin.query(`insert into brands (name) values ('CASE test')`));
+      await db.admin.query(`delete from brands where name = 'Case Test'`);
+    });
+
+    it("ignores an authenticator app that was started but never confirmed", async () => {
+      const f = await db.admin.query<{ id: string }>(
+        `insert into auth.mfa_factors (user_id, status) values ($1, 'unverified') returning id`, [OWNER_ID]);
+      try {
+        expect(await ownerReads("owner")).toBe(1);
+      } finally {
+        await db.admin.query(`delete from auth.mfa_factors where id = $1`, [f.rows[0].id]);
+      }
     });
   });
 });
