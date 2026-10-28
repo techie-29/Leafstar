@@ -1,0 +1,51 @@
+name: Preview site (GitHub Pages)
+
+# Publishes the static preview (only the pages listed in preview.routes.json) on every push to main.
+# It never receives server secrets: only the TEST Supabase project's public URL and anon key,
+# which are safe to expose by design (AGENTS.md §2, §7). Both are optional until pages need data.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+      LS_BASE_PATH: /${{ github.event.repository.name }}
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.PREVIEW_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.PREVIEW_SUPABASE_ANON_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Build static preview
+        run: npm run build:preview
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: preview-out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

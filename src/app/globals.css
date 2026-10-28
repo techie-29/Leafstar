@@ -1,0 +1,366 @@
+@import "tailwindcss";
+
+/*
+  LEAF STAR design tokens. Source of truth: DESIGN.md.
+  Tailwind's default palette, spacing, radii, type sizes, shadows and breakpoints are
+  REMOVED below and replaced with the DESIGN.md scales only, so an off-scale value
+  (p-5, text-lg, rounded-2xl, bg-red-500 …) simply does not exist and fails the build check.
+
+  Theme variables are scoped to [data-theme], so the styleguide can show both themes
+  side by side; <html data-theme="…"> sets the page theme.
+*/
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@theme {
+  --color-*: initial;
+  --spacing: initial;
+  --spacing-*: initial;
+  --radius-*: initial;
+  --text-*: initial;
+  --shadow-*: initial;
+  --breakpoint-*: initial;
+  --font-*: initial;
+  --container-*: initial;
+  --leading-*: initial;
+  --tracking-*: initial;
+
+  /* breakpoints (DESIGN.md §4) — phone is the default (375 and up) */
+  --breakpoint-md: 48rem;   /* 768 tablet */
+  --breakpoint-lg: 64rem;   /* 1024 laptop */
+  --breakpoint-xl: 90rem;   /* 1440 desktop */
+
+  /* spacing scale: 4, 8, 12, 16, 24, 32, 48, 64, 96 — nothing else */
+  --spacing-0: 0px;
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-6: 24px;
+  --spacing-8: 32px;
+  --spacing-12: 48px;
+  --spacing-16: 64px;
+  --spacing-24: 96px;
+  /* named component sizes (DESIGN.md §5, §7, §8) */
+  --spacing-control-sm: 36px;
+  --spacing-control: 44px;
+  --spacing-control-lg: 52px;
+  --spacing-chip: 24px;
+  --spacing-size-chip: 32px;
+  --spacing-swatch: 28px;
+  --spacing-swatch-sm: 24px;
+  --spacing-icon-sm: 16px;
+  --spacing-icon: 20px;
+  --spacing-icon-lg: 24px;
+  --spacing-bar: 8px;
+  --spacing-nav: 64px;
+  --spacing-nav-lg: 72px;
+  --spacing-topbar: 64px;
+  --spacing-sidebar: 248px;
+  --spacing-filters: 264px;
+  --spacing-fab: 56px;
+  --spacing-close: 48px;
+  --spacing-button-min: 96px;
+  --spacing-sheet: 90dvh;
+
+  /* max widths */
+  --container-page: 1280px;
+  --container-admin: 1440px;
+  --container-prose: 720px;
+  --container-modal: 560px;
+  --container-drawer: 480px;
+  --container-login: 420px;
+  --container-chat: 380px;
+
+  /* radius scale */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+
+  /* elevation (dark theme sets these to none; cards use an outline instead) */
+  --shadow-1: var(--ls-shadow-1);
+  --shadow-2: var(--ls-shadow-2);
+
+  /* fonts (files self-hosted through next/font/local) */
+  --font-heading: var(--font-playfair), Georgia, serif;
+  --font-body: var(--font-manrope), system-ui, sans-serif;
+
+  --ease-out: cubic-bezier(0.2, 0, 0, 1);
+
+  /* motion (DESIGN.md §4): 150 hover/press, 200 fades/drawers/sheets, 250 image fade */
+  --animate-fade-in: ls-fade-in 200ms cubic-bezier(0.2, 0, 0, 1);
+  --animate-sheet-in: ls-sheet-in 200ms cubic-bezier(0.2, 0, 0, 1);
+  --animate-drawer-in: ls-drawer-in 200ms cubic-bezier(0.2, 0, 0, 1);
+  --animate-shimmer: ls-shimmer 1.4s linear infinite;
+}
+
+/* Colour utilities: bg-surface, text-fg-muted, border-border-strong … all map to theme variables */
+@theme inline {
+  --color-transparent: transparent;
+  --color-current: currentColor;
+  --color-bg: var(--ls-bg);
+  --color-surface: var(--ls-surface);
+  --color-surface-2: var(--ls-surface-2);
+  --color-border: var(--ls-border);
+  --color-border-strong: var(--ls-border-strong);
+  --color-fg: var(--ls-text);
+  --color-fg-muted: var(--ls-text-muted);
+  --color-chrome: var(--ls-chrome);
+  --color-chrome-fg: var(--ls-chrome-text);
+  --color-chrome-line: var(--ls-chrome-line);
+  --color-gold: var(--ls-gold);
+  --color-gold-hover: var(--ls-gold-hover);
+  --color-on-gold: var(--ls-on-gold);
+  --color-gold-text: var(--ls-gold-text);
+  --color-gold-on-chrome: var(--ls-gold-on-chrome);
+  --color-success: var(--ls-success);
+  --color-warning: var(--ls-warning);
+  --color-danger: var(--ls-danger);
+  --color-on-danger: var(--ls-on-danger);
+  --color-success-bg: var(--ls-success-bg);
+  --color-warning-bg: var(--ls-warning-bg);
+  --color-danger-bg: var(--ls-danger-bg);
+  --color-ring: var(--ls-ring);
+  --color-overlay: var(--ls-overlay);
+  --color-whatsapp: var(--ls-whatsapp);
+  --color-on-whatsapp: var(--ls-on-whatsapp);
+  --color-series-1: var(--ls-series-1);
+  --color-series-2: var(--ls-series-2);
+}
+
+/* ---------- theme values (DESIGN.md §2; contrast verified there) ---------- */
+:root,
+[data-theme="light"] {
+  color-scheme: light;
+  --ls-bg: #F9F5ED;
+  --ls-surface: #FFFFFF;
+  --ls-surface-2: #F1EBDD;
+  --ls-border: #E8E1D5;
+  --ls-border-strong: #8A8275;
+  --ls-text: #0F1924;
+  --ls-text-muted: #5C6370;
+  --ls-chrome: #1C2B4A;
+  --ls-chrome-text: #F9F5ED;
+  --ls-chrome-line: rgba(249, 245, 237, 0.28);
+  --ls-gold: #C6933A;
+  --ls-gold-hover: #D4A855;
+  --ls-on-gold: #1C2B4A;
+  --ls-gold-text: #7A5C1F;
+  --ls-gold-on-chrome: #D4A855;
+  --ls-success: #166534;
+  --ls-warning: #A04A06;
+  --ls-danger: #C21F1F;
+  --ls-on-danger: #FFFFFF;
+  --ls-success-bg: #DCFCE7;
+  --ls-warning-bg: #FEF3C7;
+  --ls-danger-bg: #FEE2E2;
+  --ls-ring: #1C2B4A;
+  --ls-overlay: rgba(15, 25, 36, 0.55);
+  --ls-whatsapp: #25D366;
+  --ls-on-whatsapp: #0B0B0D;
+  --ls-series-1: #1C2B4A;
+  --ls-series-2: #C6933A;
+  --ls-shadow-1: 0 1px 2px rgba(15, 25, 36, 0.06), 0 4px 12px rgba(15, 25, 36, 0.06);
+  --ls-shadow-2: 0 12px 32px rgba(15, 25, 36, 0.14);
+  --ls-card-outline: transparent;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --ls-bg: #0B0B0D;
+  --ls-surface: #161618;
+  --ls-surface-2: #1F1F22;
+  --ls-border: #2C2C30;
+  --ls-border-strong: #6B6B72;
+  --ls-text: #F5F1E8;
+  --ls-text-muted: #A8A399;
+  --ls-chrome: #0B0B0D;
+  --ls-chrome-text: #F5F1E8;
+  --ls-chrome-line: #2C2C30;
+  --ls-gold: #D4AF5A;
+  --ls-gold-hover: #E0BC6C;
+  --ls-on-gold: #0B0B0D;
+  --ls-gold-text: #D4AF5A;
+  --ls-gold-on-chrome: #D4AF5A;
+  --ls-success: #4ADE80;
+  --ls-warning: #FBBF24;
+  --ls-danger: #F87171;
+  --ls-on-danger: #0B0B0D;
+  --ls-success-bg: #16301F;
+  --ls-warning-bg: #33290E;
+  --ls-danger-bg: #3A1A1A;
+  --ls-ring: #D4AF5A;
+  --ls-overlay: rgba(0, 0, 0, 0.7);
+  --ls-whatsapp: #25D366;
+  --ls-on-whatsapp: #0B0B0D;
+  --ls-series-1: #F5F1E8;
+  --ls-series-2: #D4AF5A;
+  --ls-shadow-1: none;
+  --ls-shadow-2: none;
+  --ls-card-outline: #2C2C30;
+}
+
+/* ---------- typography styles (DESIGN.md §3); the only way to size text ---------- */
+@utility type-display {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 38px;
+  line-height: 44px;
+  letter-spacing: -0.01em;
+  @media (width >= 48rem) { font-size: 56px; line-height: 60px; }
+}
+@utility type-h1 {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 32px;
+  line-height: 40px;
+  @media (width >= 48rem) { font-size: 40px; line-height: 48px; }
+}
+@utility type-h2 {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 26px;
+  line-height: 34px;
+  @media (width >= 48rem) { font-size: 32px; line-height: 40px; }
+}
+@utility type-h3 {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 22px;
+  line-height: 30px;
+  @media (width >= 48rem) { font-size: 24px; line-height: 32px; }
+}
+@utility type-h4 {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 26px;
+  @media (width >= 48rem) { font-size: 20px; line-height: 28px; }
+}
+@utility type-body-lg {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 17px;
+  line-height: 26px;
+  @media (width >= 48rem) { font-size: 18px; line-height: 28px; }
+}
+@utility type-body {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+}
+@utility type-small {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+}
+@utility type-caption {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.08em;
+}
+@utility type-number {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- reusable surface rules ---------- */
+@utility card-surface {
+  background-color: var(--ls-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--ls-shadow-1);
+  outline: 1px solid var(--ls-card-outline);
+  outline-offset: -1px;
+}
+@utility skeleton {
+  background-color: var(--ls-surface-2);
+  background-image: linear-gradient(90deg, var(--ls-surface-2) 0%, var(--ls-border) 50%, var(--ls-surface-2) 100%);
+  background-size: 200% 100%;
+  animation: var(--animate-shimmer);
+}
+@utility focus-ring {
+  &:focus-visible {
+    outline: 2px solid var(--ls-ring);
+    outline-offset: 2px;
+  }
+}
+
+/* ---------- base ---------- */
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    background-color: var(--ls-bg);
+    color: var(--ls-text);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 24px;
+    -webkit-font-smoothing: antialiased;
+  }
+  [data-theme] {
+    color: var(--ls-text);
+  }
+  :focus-visible {
+    outline: 2px solid var(--ls-ring);
+    outline-offset: 2px;
+  }
+  ::selection {
+    background-color: var(--ls-gold);
+    color: var(--ls-on-gold);
+  }
+  /* page behind an open modal or drawer does not scroll */
+  html:has(dialog[open]) {
+    overflow: hidden;
+  }
+  dialog::backdrop {
+    background-color: var(--ls-overlay);
+  }
+  input, select, textarea, button {
+    font: inherit;
+    color: inherit;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* skeleton shimmer (the only looping motion; DESIGN.md §4) */
+@keyframes ls-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes ls-countdown {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
+}
+@keyframes ls-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes ls-sheet-in {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+@keyframes ls-drawer-in {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+@keyframes ls-spin {
+  to { transform: rotate(360deg); }
+}

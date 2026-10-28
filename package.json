@@ -1,0 +1,48 @@
+{
+  "name": "leafstar",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "typecheck": "next typegen && tsc --noEmit",
+    "check:design": "node scripts/check-design.mjs",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "build:preview": "node scripts/build-preview.mjs",
+    "db:types": "supabase gen types typescript --project-id \"$SUPABASE_PROJECT_ID\" --schema public > src/types/database.ts",
+    "verify": "npm run lint && npm run typecheck && npm run check:design && npm test && npm run build"
+  },
+  "dependencies": {
+    "@supabase/ssr": "0.12.7",
+    "@supabase/supabase-js": "2.118.0",
+    "lucide-react": "1.63.0",
+    "next": "16.4.3",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "server-only": "0.0.1",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.14.0",
+    "@fontsource-variable/manrope": "5.3.0",
+    "@fontsource/playfair-display": "5.3.0",
+    "@playwright/test": "1.64.1",
+    "@tailwindcss/turbopack": "^4",
+    "@types/node": "^22.20.5",
+    "@types/pg": "8.23.1",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.4.3",
+    "pg": "8.23.1",
+    "tailwindcss": "^4",
+    "typescript": "^5",
+    "vitest": "5.0.5"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

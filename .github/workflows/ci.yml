@@ -1,0 +1,58 @@
+name: Checks
+
+# Every push and pull request: lint, types, design rules, database tests, build, and the
+# browser tests (screenshots at 4 widths × 2 themes + accessibility scan).
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: pg
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      CI: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+      DATABASE_URL: postgresql://postgres:pg@localhost:5432/postgres
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Type check
+        run: npm run typecheck
+      - name: Design rules (no raw colours, no off-scale values)
+        run: npm run check:design
+      - name: Unit and database tests
+        run: npm test
+      - name: Build
+        run: npm run build
+      - name: Install browser
+        run: npx playwright install --with-deps chromium
+      - name: Browser tests (screenshots, accessibility, theme)
+        run: npm run test:e2e
+      - name: Keep screenshots for review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots
+          path: |
+            screenshots/
+            playwright-report/
+          retention-days: 14
