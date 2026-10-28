@@ -10,6 +10,7 @@ import { formatNumber } from "@/lib/numbers";
 import type { AiUsageToday } from "../queries";
 import { saveAiBudget, setAiPaused } from "../actions";
 import { OriginalValues, useSaveAction } from "./shared";
+import { ActionForm } from "@/components/ui/ActionForm";
 
 /** AI usage today against the daily limit, the limit itself, and the pause switch (AGENTS.md §11). */
 export function AiSection({ budget, paused, today }: { budget: number; paused: boolean; today: AiUsageToday }) {
@@ -74,7 +75,7 @@ export function AiSection({ budget, paused, today }: { budget: number; paused: b
         disabled={switching}
       />
 
-      <form action={action} className="flex flex-col gap-4 border-t border-border pt-6" noValidate>
+      <ActionForm action={action} className="flex flex-col gap-4 border-t border-border pt-6" noValidate>
         <OriginalValues values={{ ai_daily_token_budget: budget }} />
         <TextInput
           label="Daily limit (tokens)"
@@ -90,7 +91,7 @@ export function AiSection({ budget, paused, today }: { budget: number; paused: b
             Save daily limit
           </Button>
         </div>
-      </form>
+      </ActionForm>
     </div>
   );
 }

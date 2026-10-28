@@ -198,16 +198,17 @@ export async function addBrand(_prev: FormState, formData: FormData): Promise<Fo
 
 export async function renameBrand(_prev: FormState, formData: FormData): Promise<FormState> {
   await requireStaff(undefined, "/admin/settings");
-  const values = formValues(formData, ["id", "name", "updated_at"]);
-  const parsed = z.object({ id: z.uuid(), name: brandName, updated_at: z.string().min(1) }).safeParse(values);
+  const values = formValues(formData, ["id", "name", "original_name"]);
+  const parsed = z.object({ id: z.uuid(), name: brandName, original_name: z.string() }).safeParse(values);
   if (!parsed.success) return { status: "error", fieldErrors: fieldErrorsFrom(parsed.error.issues), values };
 
+  // Only the name is compared: switching "Show on website" in the meantime is not a conflict.
   const supabase = await supabaseServer();
   const { data, error } = await supabase
     .from("brands")
     .update({ name: parsed.data.name })
     .eq("id", parsed.data.id)
-    .eq("updated_at", parsed.data.updated_at)
+    .eq("name", parsed.data.original_name)
     .select("id");
   if (error) return { status: "error", fieldErrors: { name: brandError(error.code) }, values };
   if (!data?.length) return { status: "error", message: CHANGED_ELSEWHERE, values };
@@ -262,13 +263,21 @@ export async function addFaq(_prev: FormState, formData: FormData): Promise<Form
 
 export async function updateFaq(_prev: FormState, formData: FormData): Promise<FormState> {
   await requireStaff(undefined, "/admin/settings");
-  const values = formValues(formData, ["id", "updated_at", "topic", "question", "answer"]);
-  const parsed = faqSchema.extend({ id: z.uuid(), updated_at: z.string().min(1) }).safeParse(values);
+  const values = formValues(formData, ["id", "topic", "question", "answer"]);
+  const parsed = faqSchema.extend({ id: z.uuid() }).safeParse(values);
   if (!parsed.success) return { status: "error", fieldErrors: fieldErrorsFrom(parsed.error.issues), values };
 
-  const { id, updated_at, ...changes } = parsed.data;
+  // Compares the topic, question and answer the form showed; pausing the answer meanwhile is not a conflict.
+  const original = readOriginal(formData);
+  const { id, ...changes } = parsed.data;
   const supabase = await supabaseServer();
-  const { data, error } = await supabase.from("faq_entries").update(changes).eq("id", id).eq("updated_at", updated_at).select("id");
+  let query = supabase.from("faq_entries").update(changes).eq("id", id);
+  for (const field of ["topic", "question", "answer"] as const) {
+    if (!(field in original)) return { status: "error", message: CHANGED_ELSEWHERE, values };
+    const was = original[field];
+    query = was === null ? query.filter(field, "is", null) : query.filter(field, "eq", String(was));
+  }
+  const { data, error } = await query.select("id");
   if (error) return { status: "error", message: SAVE_FAILED, values };
   if (!data?.length) return { status: "error", message: CHANGED_ELSEWHERE, values };
   refresh();

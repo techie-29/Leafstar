@@ -8,13 +8,14 @@ import { TextInput } from "@/components/ui/Field";
 import { FormMessage } from "@/components/ui/Feedback";
 import { idleForm } from "@/lib/form-state";
 import { requestPasswordReset } from "../actions";
+import { ActionForm } from "@/components/ui/ActionForm";
 
 export function ForgotPasswordForm() {
   const params = useSearchParams();
   const [state, action, pending] = useActionState(requestPasswordReset, idleForm);
 
   return (
-    <form action={action} className="flex flex-col gap-4" noValidate>
+    <ActionForm action={action} className="flex flex-col gap-4" noValidate>
       {params.get("link") === "expired" && state.status === "idle" ? (
         <FormMessage tone="error">That reset link has expired or was already used. Ask for a new one below.</FormMessage>
       ) : null}
@@ -36,6 +37,6 @@ export function ForgotPasswordForm() {
       <Link href="/admin/login" className="self-center rounded-sm type-small font-semibold text-fg underline underline-offset-4 focus-ring">
         Back to login
       </Link>
-    </form>
+    </ActionForm>
   );
 }

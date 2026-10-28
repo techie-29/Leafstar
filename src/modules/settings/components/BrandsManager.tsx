@@ -11,6 +11,7 @@ import { useToast } from "@/components/ui/Toast";
 import type { Brand } from "../queries";
 import { addBrand, deleteBrand, renameBrand, setBrandPublic } from "../actions";
 import { useSaveAction } from "./shared";
+import { ActionForm } from "@/components/ui/ActionForm";
 
 function AddBrandForm() {
   const [state, action, pending] = useSaveAction(addBrand);
@@ -52,12 +53,12 @@ function RenameBrand({ brand, onClose }: { brand: Brand; onClose: () => void }) 
         </>
       }
     >
-      <form id={formId} action={action} className="flex flex-col gap-4" noValidate>
+      <ActionForm id={formId} action={action} className="flex flex-col gap-4" noValidate>
         <input type="hidden" name="id" value={brand.id} />
-        <input type="hidden" name="updated_at" value={brand.updated_at} />
+        <input type="hidden" name="original_name" value={brand.name} />
         <TextInput label="Brand name" name="name" defaultValue={state.values?.name ?? brand.name} error={state.fieldErrors?.name} autoFocus />
         {state.status === "error" && state.message ? <FormMessage tone="error">{state.message}</FormMessage> : null}
-      </form>
+      </ActionForm>
     </Modal>
   );
 }

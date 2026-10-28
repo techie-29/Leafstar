@@ -7,6 +7,7 @@ import { formatPhone } from "@/lib/formats";
 import type { BusinessSettings } from "../queries";
 import { saveBusinessDetails } from "../actions";
 import { OriginalValues, useSaveAction } from "./shared";
+import { ActionForm } from "@/components/ui/ActionForm";
 
 export function BusinessDetailsForm({ settings }: { settings: BusinessSettings }) {
   const [state, action, pending] = useSaveAction(saveBusinessDetails);
@@ -25,7 +26,7 @@ export function BusinessDetailsForm({ settings }: { settings: BusinessSettings }
   };
 
   return (
-    <form action={action} className="flex flex-col gap-6" noValidate>
+    <ActionForm action={action} className="flex flex-col gap-6" noValidate>
       <OriginalValues values={original} />
       <div className="grid gap-4 md:grid-cols-2 md:gap-6">
         <TextInput label="Business name" name="business_name" required defaultValue={v?.business_name ?? settings.business_name} error={e.business_name} />
@@ -75,6 +76,6 @@ export function BusinessDetailsForm({ settings }: { settings: BusinessSettings }
           Save business details
         </Button>
       </div>
-    </form>
+    </ActionForm>
   );
 }

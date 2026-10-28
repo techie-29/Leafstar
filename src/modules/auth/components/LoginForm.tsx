@@ -8,6 +8,7 @@ import { PasswordInput, TextInput } from "@/components/ui/Field";
 import { FormMessage } from "@/components/ui/Feedback";
 import { idleForm } from "@/lib/form-state";
 import { signIn } from "../actions";
+import { ActionForm } from "@/components/ui/ActionForm";
 
 export function LoginForm() {
   const params = useSearchParams();
@@ -15,7 +16,7 @@ export function LoginForm() {
   const next = state.values?.next ?? params.get("next") ?? "";
 
   return (
-    <form action={action} className="flex flex-col gap-4" noValidate>
+    <ActionForm action={action} className="flex flex-col gap-4" noValidate>
       {params.get("signed-out") && state.status === "idle" ? <FormMessage tone="info">You have signed out.</FormMessage> : null}
       <input type="hidden" name="next" value={next} />
       <TextInput
@@ -43,6 +44,6 @@ export function LoginForm() {
       <Link href="/admin/forgot-password" className="self-center rounded-sm type-small font-semibold text-fg underline underline-offset-4 focus-ring">
         Forgot your password?
       </Link>
-    </form>
+    </ActionForm>
   );
 }

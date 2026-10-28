@@ -22,6 +22,9 @@ test.describe("login and protection", () => {
     await logIn(page, "not-the-password-123", "/admin/settings");
     await expect(page.getByRole("alert").filter({ hasText: "That email and password don't match" }).first()).toBeVisible();
     await expect(page).toHaveURL(/\/admin\/login/);
+    // Nothing the person typed is wiped by the refused attempt.
+    await expect(page.getByLabel("Email")).toHaveValue(stack.email);
+    await expect(page.getByRole("button", { name: "Sign in" })).toBeEnabled();
 
     await page.getByRole("textbox", { name: "Password", exact: true }).fill(password);
     await page.getByRole("button", { name: "Sign in" }).click();

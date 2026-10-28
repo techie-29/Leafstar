@@ -6,6 +6,7 @@ import { Button, buttonClasses } from "@/components/ui/Button";
 import { PasswordInput } from "@/components/ui/Field";
 import { FormMessage } from "@/components/ui/Feedback";
 import { idleForm, type FormState } from "@/lib/form-state";
+import { ActionForm } from "@/components/ui/ActionForm";
 
 /** Used after a reset link (setNewPassword) and in Settings → Account (changePassword). */
 export function NewPasswordForm({
@@ -20,7 +21,11 @@ export function NewPasswordForm({
   /** "secondary" where another action on the same card is the main one (Settings → Account). */
   variant?: "primary" | "secondary";
 }) {
-  const [state, action, pending] = useActionState(serverAction, idleForm);
+  // After a successful change the fields are emptied (fresh form via `key`); after a refusal they keep what was typed.
+  const [state, action, pending] = useActionState(async (prev: FormState, formData: FormData) => {
+    const result = await serverAction(prev, formData);
+    return result.status === "success" ? { ...result, values: { saved: String(Date.now()) } } : result;
+  }, idleForm);
 
   if (state.status === "success" && afterSuccess === "link-to-admin") {
     return (
@@ -34,7 +39,7 @@ export function NewPasswordForm({
   }
 
   return (
-    <form action={action} className="flex flex-col gap-4" noValidate>
+    <ActionForm key={state.values?.saved ?? "form"} action={action} className="flex flex-col gap-4" noValidate>
       <PasswordInput
         label="New password"
         name="password"
@@ -48,6 +53,6 @@ export function NewPasswordForm({
       <Button type="submit" variant={variant} size={afterSuccess ? "lg" : "md"} fullWidth={Boolean(afterSuccess)} loading={pending} className="md:self-end">
         {submitLabel}
       </Button>
-    </form>
+    </ActionForm>
   );
 }

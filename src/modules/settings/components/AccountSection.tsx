@@ -19,6 +19,7 @@ import {
   type TwoStepEnrolment,
 } from "@/modules/auth/actions";
 import { useSaveAction } from "./shared";
+import { ActionForm } from "@/components/ui/ActionForm";
 
 function ConfirmCode({ enrolment, onCancel }: { enrolment: TwoStepEnrolment; onCancel: () => void }) {
   // The panel disappears as soon as two-step login is on, so the toast is shown from the save itself.
@@ -53,7 +54,7 @@ function ConfirmCode({ enrolment, onCancel }: { enrolment: TwoStepEnrolment; onC
           </Button>
         </div>
       </div>
-      <form action={action} className="flex flex-col gap-4" noValidate>
+      <ActionForm action={action} className="flex flex-col gap-4" noValidate>
         <input type="hidden" name="factorId" value={enrolment.factorId} />
         <TextInput
           label="6-digit code from the app"
@@ -72,7 +73,7 @@ function ConfirmCode({ enrolment, onCancel }: { enrolment: TwoStepEnrolment; onC
             Turn on two-step login
           </Button>
         </div>
-      </form>
+      </ActionForm>
     </div>
   );
 }

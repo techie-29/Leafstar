@@ -10,7 +10,8 @@ import { Modal } from "@/components/ui/Modal";
 import { useToast } from "@/components/ui/Toast";
 import type { FaqEntry } from "../queries";
 import { addFaq, deleteFaq, setFaqActive, updateFaq } from "../actions";
-import { useSaveAction } from "./shared";
+import { OriginalValues, useSaveAction } from "./shared";
+import { ActionForm } from "@/components/ui/ActionForm";
 
 /* The owner's own answers to buyers' common questions. The chatbot answers policy questions ONLY from
    these (AGENTS.md §9), so a missing answer makes it say "I don't know" and offer a person. */
@@ -45,11 +46,11 @@ function FaqForm({ entry, onClose }: { entry?: FaqEntry; onClose: () => void }) 
         </>
       }
     >
-      <form id={formId} action={action} className="flex flex-col gap-4" noValidate>
+      <ActionForm id={formId} action={action} className="flex flex-col gap-4" noValidate>
         {entry ? (
           <>
             <input type="hidden" name="id" value={entry.id} />
-            <input type="hidden" name="updated_at" value={entry.updated_at} />
+            <OriginalValues values={{ topic: entry.topic, question: entry.question, answer: entry.answer }} />
           </>
         ) : null}
         <Select label="Topic" name="topic" options={options} placeholder="Choose a topic" defaultValue={topic} error={state.fieldErrors?.topic} />
@@ -70,7 +71,7 @@ function FaqForm({ entry, onClose }: { entry?: FaqEntry; onClose: () => void }) 
           error={state.fieldErrors?.answer}
         />
         {state.status === "error" && state.message ? <FormMessage tone="error">{state.message}</FormMessage> : null}
-      </form>
+      </ActionForm>
     </Modal>
   );
 }
